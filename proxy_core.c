@@ -46,7 +46,6 @@
 #include "pidfile.h"
 #include "server.h"
 #include "strlcpy.h"
-#include "handler.h"
 #include "fdpass.h"
 #include "main_worker.h"
 #define DEBUG_CORE
@@ -61,13 +60,16 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
     int thesockets[2];
     pid_t pid;
     int status;
+    struct conn_t state;
     struct proxybind *tmpbind;
    
     int *listen_array = calloc(num_items,sizeof(int));
+/*
     int *conn_array = calloc(num_items,sizeof(int));
     struct sockaddr_in *cliaddr_array = calloc(num_items,sizeof(struct sockaddr_in)); 
+*/
 
-    if ((listen_array == NULL) || (conn_array == NULL) || (cliaddr_array==NULL))
+    if (listen_array == NULL)
 	{
 	fprintf(stderr,"%s: Memory allocation error\n",__func__);
 	exit(EXIT_FAILURE);
@@ -79,9 +81,12 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
 	exit(EXIT_FAILURE);
     }
     tmpbind = header;
+
+    int j;
+
     for (j = 0; j < num_items; j++)
     {
-    fd_array[j] = create_server_socket(tmpbind->ipaddress,tmpbind->port); 
+    listen_array[j] = create_server_socket(tmpbind->ipaddress,tmpbind->port); 
     #ifdef DEBUG_CORE
     fprintf(stderr,"Opening socket on port %d\n",tmpbind->port);
     #endif
@@ -101,25 +106,28 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
     */
 
     close(thesockets[0]);
-    int tmpfd;
 
     for (;;)
     {
-    tmpfd = multiaccept (listen_array, conn_array, cliaddr_array, num_items);
+	if (multiaccept (listen_array, num_items, &state)< 0)
+	{
+	    fprintf(stderr,"Error");
+	    exit(EXIT_FAILURE);
+	    
+	}
     #ifdef DEBUG_CORE
-    fprintf(stderr,"Sending fd to worker  %d on sockets %d \n",tmpfd,thesockets[1]);
+    fprintf(stderr,"Sending fd to worker  %d on sockets %d \n",state.connfd,thesockets[1]);
     #endif
-    send_fd(thesockets[1],tmpfd);
-    }
-       while (waitpid(-1,&status,WNOHANG)<0)
+    send_fd(thesockets[1],state.connfd);
+    memset(&state,0,sizeof(struct conn_t));
+    }       while (waitpid(-1,&status,WNOHANG)<0)
 	{
 	fprintf(stderr,"%s: waitpid error\n",__func__);
 	exit(EXIT_FAILURE);
 	}
     if (WIFEXITED(status))
 	{
-	fprintf(stderr,"%s: program terminated\n",__func__);
-	free(conn_array); 
+	fprintf(stderr,"%s: program terminated\n",__func__); 
 	free(listen_array);	
 	exit(EXIT_FAILURE);
 	}
