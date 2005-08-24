@@ -1,0 +1,18 @@
+#ifndef IPC_FSM
+#define IPC_FSM
+#include "server.h"
+
+typedef unsigned int p_msg;
+#define SERVER_GREET 100;
+#define CLIENT_GREET 101;
+#define GREET_SIZE sizeof(unsigned int);
+#define OK 102;
+#define NOT_OK 104;
+#define SENDFD 103; 
+#define SEND_SRC_IP 105;
+#define SEND_SRC_PORT 106;
+#define SEND_DST_IP 107;
+#define SEND_DST_PORT 108;
+int server_fsm(int *sock,int connfd);
+int client_fsm(struct conn_t *state);
+#
