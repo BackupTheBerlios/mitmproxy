@@ -1,0 +1,59 @@
+$C   /* Generate Main Module */
+COMPILER ProxyConf 
+#include "conf.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+/* This is a simple expression calculator */
+
+/*----------------- Scanner Specifications ----------------------*/
+
+CHARACTERS
+    letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+    digit  = "0123456789".
+    tab    = CHR(9).
+    eol    = CHR(10).
+    dot    = ".".
+    
+
+TOKENS
+number  =  digit  { digit }.
+ip = digit [digit] [digit] dot digit [digit] [digit] 
+	dot digit [digit] [digit] dot digit [digit] [digit].
+IGNORE eol+tab
+COMMENTS FROM "/*" TO "*/" 
+
+PRODUCTIONS
+ProxyConf = (. total=0; .)"<proxy>" Address {Address} "</proxy>".
+Address="<ipaddress"
+		  (.
+		char buffip[20];
+		char buffport[10];
+		unsigned int portnum;
+		struct proxybind *tmp; 
+		.) 
+		"=" "\"" ip (. 
+		S_GetString(S_Pos,S_Len,buffip,sizeof(buffip)-1);
+		.) 
+		 "\"" "port" "=" "\"" number (.
+		S_GetString(S_Pos,S_Len,buffport,sizeof(buffport)-1);
+		portnum = atoi(buffport);
+		.)
+		"\"" "/>"
+		(. tmp = allocProxy();
+		   if ( (inet_pton(AF_INET,buffip,&tmp->ipaddress)) < 1)
+			{
+			free(tmp);
+			freeAll(&head);
+			fprintf(stderr,"Error parsing IP Address");
+			exit(-1);	
+			}
+		   tmp->port = portnum;
+		   head = insertProxy(head,tmp);
+		   total++;
+		 .)
+.
+END ProxyConf.
+

@@ -1,0 +1,28 @@
+$C   /* Generate Main Module */
+COMPILER Expr
+/* This is a simple expression calculator */
+
+/*----------------- Scanner Specifications ----------------------*/
+
+CHARACTERS
+    dot = ".".
+    letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+    digit  = "0123456789".
+    tab    = CHR(9).
+    eol    = CHR(10).
+
+TOKENS
+    ipaddress = digit [digit] [digit] dot [digit] [digit] [digit] dot [digit] [digit] [digit] dot digit [digit] [digit].
+    number  =  digit  { digit }.
+
+IGNORE eol+tab
+
+COMMENTS FROM "#" TO "eol"
+
+
+
+PRODUCTIONS
+Expr = "<proxy>" Address "</proxy>".
+Address = "<ipaddress=" ipaddress "port=" number "/>".
+END Expr.
+
