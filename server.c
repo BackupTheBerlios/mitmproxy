@@ -58,7 +58,7 @@ int multiaccept (int *listen_array, size_t size, struct conn_t *state)
     struct conn_t *tmp;
     socklen_t len;
 
-    timer.tv_sec = timer.tv_usec = 0;
+    timer.tv_sec = timer.tv_usec = 5;
 
     int maxfd_value = maxfd(listen_array,size);
 
@@ -83,6 +83,8 @@ int multiaccept (int *listen_array, size_t size, struct conn_t *state)
 		c = accept(listen_array[j],(struct sockaddr *) &socket,&len);
 		if (c >= 0)
 		{
+		    fprintf(stderr,"Opening file descriptor: %d\n",c);
+
 		    tmp = get_address(c);
 		    if (tmp == NULL)
 		    {
@@ -95,12 +97,17 @@ int multiaccept (int *listen_array, size_t size, struct conn_t *state)
 		    state->src_ip = ntohs(socket.sin_addr.s_addr);
 		    state->src_port = ntohs(socket.sin_port);
 		    state->connfd = c;
+		    fprintf(stderr,"Connection stored %d\n",state->connfd);
+		}
+		else {
+		    state->connfd = -1;
 		}
 		memset(&socket,0,sizeof(struct sockaddr_in));
 		len = 0;
 	    }
 	}
     }
+    fprintf(stderr,"Accept looping\n");
     return 0;
 }
 static struct conn_t *get_address(int connfd)
@@ -109,7 +116,7 @@ static struct conn_t *get_address(int connfd)
     socklen_t len = sizeof(saddr);
     struct conn_t *address;
 	
-	
+    fprintf(stderr,"Getting src address\n");
     if (getsockopt(connfd, SOL_IP, SO_ORIGINAL_DST, &saddr, &len) != 0) {
 	fprintf(stderr,"%s: cannot get natted address",__func__);
 	exit(EXIT_FAILURE);

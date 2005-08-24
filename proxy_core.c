@@ -46,7 +46,7 @@
 #include "pidfile.h"
 #include "server.h"
 #include "strlcpy.h"
-#include "fdpass.h"
+#include "ipcfsm.h"
 #include "main_worker.h"
 #define DEBUG_CORE
 
@@ -62,12 +62,14 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
     int status;
     struct conn_t state;
     struct proxybind *tmpbind;
-   
+     
     int *listen_array = calloc(num_items,sizeof(int));
 /*
     int *conn_array = calloc(num_items,sizeof(int));
     struct sockaddr_in *cliaddr_array = calloc(num_items,sizeof(struct sockaddr_in)); 
 */
+    memset(&state,0,sizeof(struct conn_t));
+    state.connfd = -1;
 
     if (listen_array == NULL)
 	{
@@ -109,18 +111,25 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
 
     for (;;)
     {
+
 	if (multiaccept (listen_array, num_items, &state)< 0)
 	{
 	    fprintf(stderr,"Error");
-	    exit(EXIT_FAILURE);
+	    //exit(EXIT_FAILURE);
 	    
 	}
-    #ifdef DEBUG_CORE
-    fprintf(stderr,"Sending fd to worker  %d on sockets %d \n",state.connfd,thesockets[1]);
-    #endif
-    send_fd(thesockets[1],state.connfd);
+
+
+    if (state.connfd != -1)
+    {	
+    fprintf(stderr,"Staring communication with client\n");
+    client_fsm(thesockets,state);
     memset(&state,0,sizeof(struct conn_t));
-    }       while (waitpid(-1,&status,WNOHANG)<0)
+    state.connfd = -1;
+    }
+
+    }      
+     while (waitpid(-1,&status,WNOHANG)<0)
 	{
 	fprintf(stderr,"%s: waitpid error\n",__func__);
 	exit(EXIT_FAILURE);
@@ -155,7 +164,7 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
     close(thesockets[1]);
     
    
-    // main_worker(thesockets);
+    main_worker(thesockets);
 }
 
 return 0; 

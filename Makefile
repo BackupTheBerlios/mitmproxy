@@ -4,7 +4,7 @@ CC = gcc
 CFLAGS = -g -Wall
 INCLUDE = .
 OBJECTS =  strlcpy.o pidfile.o server.o utils.o fdpass.o \
-	main_worker.o proxy_core.o \
+	ipcfsm.o main_worker.o proxy_core.o \
 	conf/conf.o \
 	conf/proxyc.o \
 	conf/proxycp.o \
