@@ -1,7 +1,7 @@
 all: mitmproxy 
 
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall 
 INCLUDE = .
 OBJECTS =  strlcpy.o pidfile.o server.o utils.o fdpass.o \
 	ipcfsm.o main_worker.o proxy_core.o \

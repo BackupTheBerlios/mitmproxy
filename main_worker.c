@@ -30,7 +30,7 @@ void main_worker(int *sock)
 
 static void *doit(void *arg)
 {
-    const char msg[] = "TCP proxy Server 0.1\n";
+    const char msg[] = "TCP\n";
     int connfd = *((int *) arg); 
     free(arg);
     pthread_detach(pthread_self());

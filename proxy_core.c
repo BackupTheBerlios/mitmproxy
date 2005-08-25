@@ -142,18 +142,19 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
 	}
     }
     else {
-    /*child
-	if (jchroot(chdir))
+       fprintf(stderr,"%s: Chrooting to %s\n",__func__,chdir); 
+       if (jchroot(chdir))
 	{
 	    fprintf(stderr,"%s: cannot chroot to %s\n",__func__,chdir);
+	    kill(getppid(),SIGTERM);
 	    exit(EXIT_FAILURE);
 	}
-*/
     
     if (!drop_privs(user))
     {
 
 	fprintf(stderr,"%s: cannot drop privilegies to %s\n",__func__,user);
+	kill(getppid(),SIGTERM);
 	exit(EXIT_FAILURE);
     }
  #ifdef DEBUG_CORE

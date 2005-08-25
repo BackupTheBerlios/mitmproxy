@@ -161,9 +161,10 @@ main (int argc, char **argv)
   if ((pid_open(DEFAULT_PID,myuid,mygid)) < 0)
     {
       
-      fprintf(stderr,"An error occured during pidfile creation!\n");
+      fprintf(stderr,"%s: An error occured during pidfile creation!\n",__func__);
+     fprintf(stderr,"%s: Delete %s\n",__func__,DEFAULT_PID);
       syslog(LOG_INFO,"Exiting daemon...\n");
-  //    exit(0);
+      exit(0);
     }
   loadFile(configfile);
 
@@ -227,5 +228,6 @@ void sig_term_handler(int signum)
 {
 syslog(LOG_INFO,"Exiting daemon\n");
 int_recv = 1;
-
+unlink(DEFAULT_PID);
+exit(EXIT_FAILURE);
 }

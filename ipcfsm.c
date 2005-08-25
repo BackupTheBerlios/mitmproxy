@@ -16,14 +16,14 @@ int client_fsm(int *sock, struct conn_t state)
     
 
     memset(buffer,0,sizeof(buffer)-1);
-    fprintf(stderr,"%s: Greet the server",__func__);
+    fprintf(stderr,"%s:%d Greet the server\n",__func__,CLIENT_GREET);
     /* Greet the server */
     in = CLIENT_GREET;
     write(CLIENT_SOCK,&in,sizeof(p_msg));
-    fprintf(stderr,"%s: Receive greet from the server\n",__func__);
+   
     /* Receive greet from the server */
     read(CLIENT_SOCK,&out,sizeof(p_msg));
-    
+    fprintf(stderr,"%s: %d Receive greet from the server\n",__func__,out); 
     /* Send ip quadruple to the server 
       integer:interger:integer:integer
     */
@@ -35,11 +35,11 @@ int client_fsm(int *sock, struct conn_t state)
     /* Receive resutl from the server */
     read(CLIENT_SOCK,&out,RESULT_SIZE);
     /* Send file descriptor*/
-    fprintf(stderr,"%s: Send file descriptor\n",__func__);
+    fprintf(stderr,"%s: Send file descriptor: %d\n",__func__,state.connfd);
     send_fd(CLIENT_SOCK,state.connfd);
     /* Receive result from the server*/
-    fprintf(stderr,"%s: Receive result from the server",__func__);
     read(CLIENT_SOCK,&out,RESULT_SIZE);
+    fprintf(stderr,"%s: %d Receive result from the server\n",__func__,out);
     return 0;
     
 }
