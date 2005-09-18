@@ -9,3 +9,4 @@
 #include "conf/proxyce.h"
 #include "conf/proxycp.h"
 #include "conf/proxycs.h"
+#define MAX_CONNECTION 100

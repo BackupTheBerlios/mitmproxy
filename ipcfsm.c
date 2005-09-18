@@ -1,6 +1,6 @@
 #include "fdpass.h"
 #include "ipcfsm.h"
-#include "server.h"
+#include "socket/msocket.h"
 #include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>

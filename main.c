@@ -42,10 +42,10 @@
 #include <fcntl.h>
 #include "utils.h"
 #include "pidfile.h"
-#include "server.h"
+#include "socket/msocket.h"
 #include "strlcpy.h"
 #include "proxy_core.h"
-
+#include "queue/queue.h"
 #ifndef PATH_MAX
 
 #include <limits.h>
@@ -70,7 +70,6 @@ void sig_term_handler(int signum);
 
 volatile unsigned int reload_conf;
 volatile unsigned int int_recv;
-
 
 int
 main (int argc, char **argv)
@@ -106,6 +105,7 @@ main (int argc, char **argv)
   
   /* Setting handlers*/
   signal(SIGTERM,sig_term_handler);
+  signal(SIGINT,sig_term_handler);
   signal(SIGHUP,sig_hup_handler);
 
   if (argc == 1)

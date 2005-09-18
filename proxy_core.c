@@ -44,7 +44,7 @@
 #include <fcntl.h>
 #include "utils.h"
 #include "pidfile.h"
-#include "server.h"
+#include "socket/msocket.h"
 #include "strlcpy.h"
 #include "ipcfsm.h"
 #include "main_worker.h"
@@ -122,7 +122,7 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
 
     if (state.connfd != -1)
     {	
-    fprintf(stderr,"Staring communication with client\n");
+    fprintf(stderr,"Starting communication with client\n");
     client_fsm(thesockets,state);
     memset(&state,0,sizeof(struct conn_t));
     state.connfd = -1;
@@ -142,13 +142,15 @@ int proxy_core(struct proxybind *header, int num_items, const char *chdir, char 
 	}
     }
     else {
+	/*
        fprintf(stderr,"%s: Chrooting to %s\n",__func__,chdir); 
        if (jchroot(chdir))
 	{
 	    fprintf(stderr,"%s: cannot chroot to %s\n",__func__,chdir);
 	    kill(getppid(),SIGTERM);
 	    exit(EXIT_FAILURE);
-	}
+	    }*/
+
     
     if (!drop_privs(user))
     {

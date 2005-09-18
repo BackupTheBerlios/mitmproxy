@@ -1,6 +1,6 @@
 #ifndef IPC_FSM
 #define IPC_FSM
-#include "server.h"
+#include "socket/msocket.h"
 
 typedef unsigned int p_msg;
 #define CLIENT_SOCK sock[1]
